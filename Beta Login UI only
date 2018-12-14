@@ -1,0 +1,76 @@
+import java.awt.event.*;
+import javax.swing.*;
+import java.awt.*;
+
+// 2ndary class and extending JFrame
+class UIframe extends JFrame{
+ Container c; // creating an object of Container class
+ 
+ //JLabel/JTextField/JButton and JPasswordField
+ JLabel lbBanner = new JLabel("Account Login");
+ JLabel lbUN = new JLabel("EMPLOYEE NO"); 
+ JLabel lbPW = new JLabel("PASSWORD"); 
+ JTextField username = new JTextField();
+ JPasswordField password = new JPasswordField();
+ JButton Button1 = new JButton("CANCEL");
+ JButton Button2 = new JButton("LOGIN");
+
+//constructor for UIframe
+ UIframe()
+ {
+	 c = this.getContentPane(); 
+	 c.setLayout(null);
+	 c.setBackground(Color.WHITE);
+	 
+	 //location and size for JLabel/JTextField/JPasswordField/JButton/Banner
+	 //lbBanner.setBounds(120, 10,300,30);
+	 lbUN.setBounds(50,50,100,30);
+	 lbPW.setBounds(50,90,100,30);
+	 username.setBounds(150,50,200,25);
+	 password.setBounds(150,90,200,25);
+	 Button1.setBounds(150,140,100,25);
+	 Button2.setBounds(250,140,100,25);
+	 
+	 //setting font style
+	 Font f= new Font("Arial", Font.BOLD,12);
+	 //Font f2= new Font("Arial", Font.BOLD,25);
+	 //applying on JLabel/JTextField/JPasswordField/JButton/Banner
+	 lbUN.setFont(f);
+	 lbPW.setFont(f);
+	 username.setFont(f);
+	 password.setFont(f);
+	 Button1.setFont(f);
+	 Button2.setFont(f);
+	 //lbBanner.setFont(f2);
+	 
+	 //adding hand cursor on button
+	 Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
+	 //applying cursor to the Button
+	 Button1.setCursor(cursor); 
+	 Button2.setCursor(cursor);
+	 
+	 //adding to the container JLabel/JTextField/JPasswordField/JButton/Banner
+	 c.add(lbUN);
+	 c.add(lbPW);
+	 c.add(username);
+	 c.add(password);
+	 c.add(Button1);
+	 c.add(Button2);
+	 //c.add(lbBanner);
+ }
+}
+
+//main class and main method
+public class LoginUI{
+	public static void main(String args[]){
+	
+	
+//object of UIframe class
+ UIframe frame = new UIframe(); 
+ frame.setVisible(true);
+ frame.setTitle("JVW LoginSystem"); 
+ frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // default close operation
+ frame.setBounds(100,100,400,250); //setting location and size
+
+ }
+}
