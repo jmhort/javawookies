@@ -12,7 +12,8 @@ public class Login extends JFrame implements ActionListener{
 
     JLabel lIDnumber, lPasscode, lLogo, lDate, lTime, lTrack;
 	JLabel gapLogo, gapTime1, gapTime2, gapTimeNorth, gapLogoTrack1, gapLogoTrack2; //-> labels for gaps
-	JTextField tfIDnumber, tfPasscode;
+	JTextField tfIDnumber;
+	JPasswordField tfPasscode;
     JButton buttonSignIn;
     JPanel panelMain, panelIDPassSign, panelIDnum, panelPasscode, panelDateTime, panelTime, panelLogo, panelLogoTrack;
 	ImageIcon logo = new ImageIcon("JAVAwookiesLOGO.png"); // load the image to a imageIcon
@@ -56,7 +57,7 @@ public class Login extends JFrame implements ActionListener{
         tfIDnumber = new JTextField(8); // as agreed, should compose of 8 digits only
         tfIDnumber.addActionListener(this);
 		
-		tfPasscode = new JTextField(8);
+		tfPasscode = new JPasswordField(8);
         tfPasscode.addActionListener(this);
 
         buttonSignIn = new JButton("Sign In");
