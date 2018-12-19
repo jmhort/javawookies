@@ -24,8 +24,6 @@ public class Login extends JFrame implements ActionListener{
 	SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
 	SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a"); // not in military time. If you want to use military time use HH then take out a
 	
-	
-	
 	private boolean _clickMeMode = true;
 
     Login()
@@ -157,7 +155,18 @@ public class Login extends JFrame implements ActionListener{
 		if (_clickMeMode)
 		{
             System.out.println("naClick ang button");
-            _clickMeMode = false;
+			
+			JOptionPane.showMessageDialog(null, "naClick ang button", "ALERT", JOptionPane.ERROR_MESSAGE); // error dialog box
+			
+			SwingUI sui = new SwingUI();
+			sui.pack();
+			sui.setLocationRelativeTo(null);
+			sui.setResizable(false);
+			sui.setVisible(true);
+			
+			dispose();
+			
+			_clickMeMode = false;
         }
 		else
 			_clickMeMode = true;
@@ -180,6 +189,7 @@ public class Login extends JFrame implements ActionListener{
     public static void main(String[] args){
         //Create top-level frame
         Login frame = new Login();
+		frame = new Login();
         frame.setTitle("JavaWookies Time Tracking System");
 
         //This code lets you close the window
@@ -194,6 +204,8 @@ public class Login extends JFrame implements ActionListener{
         frame.addWindowListener(l);
         //This code lets you see the frame
         frame.pack();
+		frame.setLocationRelativeTo(null); // set the frame to appear at the center of the screen
+		frame.setResizable(false);
         frame.setVisible(true);
     }
 }
