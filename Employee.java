@@ -18,16 +18,16 @@ SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
 SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
 
 String[][] data = { 
-            { "Juan dela Cruz", "7:55AM", "5:01PM" }, 
-            { "Juan dela Cruz", "7:52AM", "5:21PM" },
-			{ "Juan dela Cruz", "7:33AM", "5:13PM" }, 
-			{ "Juan dela Cruz", "7:51AM", "5:17PM" },
-			{ "Juan dela Cruz", "7:42AM", "5:09PM" },
-			{ "Juan dela Cruz", "7:58AM", "5:15PM" },
+            { "255","12/20/2018", "7:55AM", "5:01PM" }, 
+            { "255","12/21/2018", "7:52AM", "5:21PM" },
+			{ "255","12/22/2018", "7:33AM", "5:13PM" }, 
+			{ "255","12/23/2018", "7:51AM", "5:17PM" },
+			{ "255","12/24/2018", "7:42AM", "5:09PM" },
+			{ "255","12/25/2018", "7:58AM", "5:15PM" }
 			
 		}; 
 		
-String[] columnNames = { "Name", "Time in", "Time out" }; 
+String[] columnNames = { "ID Number", "Date", "Time in", "Time out" }; 
 
 private boolean _clickMeMode = true;
 
