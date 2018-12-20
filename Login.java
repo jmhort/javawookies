@@ -49,6 +49,7 @@ public class Login extends JFrame implements ActionListener{
 		lTime = new JLabel(timeFormat.format(new Date()));
 		Font f2 = new Font("Arial", Font.BOLD,25);
 		lTime.setFont(f2);
+		lTime.setForeground(Color.BLUE);
 		//lDate.setText(dateFormat.format(new Date())); // -> long process of setting the text value of lDate
 		//lTime.setText(timeFormat.format(new Date())); // -> long process of setting the text value of lTime
 		        
@@ -148,6 +149,19 @@ public class Login extends JFrame implements ActionListener{
 		timer.setRepeats(true);
 		timer.start();
 		/* ========= code in making the clock ticks ========= */
+		
+		this.getRootPane().setDefaultButton(buttonSignIn); // making Sign In as the default button and enable "Enter" key to function
+		
+		this.addWindowListener
+		(
+			new WindowAdapter() 
+			{
+				public void windowClosing(WindowEvent e)
+				{
+						System.exit(0);
+				}
+			}
+		);
 	}
 
     public void actionPerformed(ActionEvent event)
@@ -158,11 +172,11 @@ public class Login extends JFrame implements ActionListener{
 			
 			JOptionPane.showMessageDialog(null, "naClick ang button", "ALERT", JOptionPane.ERROR_MESSAGE); // error dialog box
 			
-			SwingUI sui = new SwingUI();
-			sui.pack();
-			sui.setLocationRelativeTo(null);
-			sui.setResizable(false);
-			sui.setVisible(true);
+			Employee eui = new Employee();
+			eui.pack();
+			eui.setLocationRelativeTo(null);
+			eui.setResizable(false);
+			eui.setVisible(true);
 			
 			dispose();
 			
