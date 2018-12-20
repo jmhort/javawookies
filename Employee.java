@@ -132,7 +132,18 @@ getContentPane().add(panelMain);
 		timer.start();
 }
 public void actionPerformed(ActionEvent event){
-
+	try{
+		Object source = event.getSource();
+		if (source == buttonExit){
+			Login login = new Login();
+			login.pack();
+			login.setLocationRelativeTo(null);
+			login.setResizable(false);
+			login.setVisible(true);
+			dispose();
+		}
+	}
+	catch(Exception e) { e.printStackTrace(); }
 }
 
 	public static void main(String[] args){
