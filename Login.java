@@ -172,7 +172,7 @@ public class Login extends JFrame implements ActionListener{
 			
 			JOptionPane.showMessageDialog(null, "naClick ang button", "ALERT", JOptionPane.ERROR_MESSAGE); // error dialog box
 			
-			Employee eui = new Employee();
+			Employee eui = new Employee(); // syntax linking login.java to employee.java?
 			eui.pack();
 			eui.setLocationRelativeTo(null);
 			eui.setResizable(false);
