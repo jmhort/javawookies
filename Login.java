@@ -65,35 +65,35 @@ public class Login extends JFrame implements ActionListener{
 		/* ========= PANEL creation ========= */
 		panelMain = new JPanel(); // instantiate ang panel, basta i-equate gani nimo ang variable ug "new JPanel()" bah ron, meaning ana nagInstantiate ka
 		panelMain.setLayout(new BorderLayout(1,1));
-        panelMain.setBackground(Color.white);
+        panelMain.setBackground(Color.lightGray);
 		
 		panelIDnum = new JPanel();
 		panelIDnum.setLayout(new BorderLayout(1,1));
-        panelIDnum.setBackground(Color.white);
+        panelIDnum.setBackground(Color.lightGray);
 		
 		panelPasscode = new JPanel();
 		panelPasscode.setLayout(new BorderLayout(1,1));
-        panelPasscode.setBackground(Color.white);
+        panelPasscode.setBackground(Color.lightGray);
 		
 		panelIDPassSign = new JPanel();
 		panelIDPassSign.setLayout(new BorderLayout(1,1));
-        panelIDPassSign.setBackground(Color.white);
+        panelIDPassSign.setBackground(Color.lightGray);
 		
 		panelDateTime = new JPanel();
 		panelDateTime.setLayout(new BorderLayout(1,1));
-        panelDateTime.setBackground(Color.white);
+        panelDateTime.setBackground(Color.lightGray);
 		
 		panelTime = new JPanel();
 		panelTime.setLayout(new BorderLayout(1,1));
-        panelTime.setBackground(Color.white);
+        panelTime.setBackground(Color.lightGray);
 		
 		panelLogo = new JPanel();
 		panelLogo.setLayout(new BorderLayout(1,1));
-        panelLogo.setBackground(Color.white);
+        panelLogo.setBackground(Color.lightGray);
 		
 		panelLogoTrack = new JPanel();
 		panelLogoTrack.setLayout(new BorderLayout(1,1));
-        panelLogoTrack.setBackground(Color.white);
+        panelLogoTrack.setBackground(Color.lightGray);
 		/* ========= PANEL creation ========= */
 		
 		
