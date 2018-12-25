@@ -55,6 +55,7 @@ public class Employee extends JFrame implements ActionListener{
 		buttonExit.addActionListener(this);
 		buttonIn = new JButton("Clock in");
 		buttonIn.addActionListener(this);
+		//buttonIn.setEnabled(false);
 		buttonOut = new JButton("Clock out");
 		buttonOut.addActionListener(this);
 
@@ -69,23 +70,23 @@ public class Employee extends JFrame implements ActionListener{
 		panelWC = new JPanel();
 
 		panelMain.setLayout(new BorderLayout(1,1));
-		panelMain.setBackground(Color.white);
+		panelMain.setBackground(Color.lightGray);
 		panelWE.setLayout(new BorderLayout(1,1));
-		panelWE.setBackground(Color.white);
+		panelWE.setBackground(Color.lightGray);
 		panelNIA.setLayout(new BorderLayout(1,1));
-		panelNIA.setBackground(Color.white);
+		panelNIA.setBackground(Color.lightGray);
 		panelGPA.setLayout(new BorderLayout(1,1));
-		panelGPA.setBackground(Color.white);
+		panelGPA.setBackground(Color.lightGray);
 		panelDT.setLayout(new BorderLayout(30,1));
-		panelDT.setBackground(Color.white);
+		panelDT.setBackground(Color.lightGray);
 		panelCC.setLayout(new BorderLayout(120,1));
-		panelCC.setBackground(Color.white);
+		panelCC.setBackground(Color.lightGray);
 		panelWNG.setLayout(new BorderLayout(1,1));
-		panelWNG.setBackground(Color.white);
+		panelWNG.setBackground(Color.lightGray);
 		panelCD.setLayout(new BorderLayout(1,1));
-		panelCD.setBackground(Color.white);
+		panelCD.setBackground(Color.lightGray);
 		panelWC.setLayout(new BorderLayout(1,1));
-		panelWC.setBackground(Color.white);
+		panelWC.setBackground(Color.lightGray);
 
 		panelWE.add(BorderLayout.WEST, lblWelcome);
 		panelWE.add(BorderLayout.EAST, buttonExit);
@@ -101,7 +102,7 @@ public class Employee extends JFrame implements ActionListener{
 		panelDT.add(BorderLayout.WEST, lblGap1);
 		panelDT.add(BorderLayout.CENTER, lblTime);
 		panelDT.add(BorderLayout.EAST, lblGap2);
-		panelDT.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.lightGray,2),dateFormat.format(new Date()),1,0));
+		panelDT.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLUE,2),dateFormat.format(new Date()),1,0));
 
 		panelCC.add(BorderLayout.WEST, buttonIn);
 		panelCC.add(BorderLayout.CENTER, panelDT);
@@ -128,7 +129,7 @@ public class Employee extends JFrame implements ActionListener{
 			public void actionPerformed(ActionEvent e)
 			{
 				lblTime.setText(timeFormat.format(new Date(System.currentTimeMillis())));
-				panelDT.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.lightGray,2),dateFormat.format(new Date(System.currentTimeMillis())),1,0));
+				panelDT.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLUE,2),dateFormat.format(new Date(System.currentTimeMillis())),1,0));
 			}
 		}
 		);
