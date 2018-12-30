@@ -1,4 +1,7 @@
 import java.awt.Font;
+import com.mysql.cj.jdbc.exceptions.*;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
 
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -9,55 +12,94 @@ import javax.swing.*;
 import javax.swing.JTable; 
 import java.io.*;
 
-public class Employee extends JFrame implements ActionListener{
+public class Employee extends JFrame implements ActionListener
+{
 
-	JLabel lblWelcome, lblName, lblID, lblAge, lblGender, lblPhone, lblAddress, lblDate, lblTime, lblGap1, lblGap2, lblCDgap;
+	JLabel lblWelcome, lblName, lblID, lblAge, lblGender, lblAddress, lblDate, lblTime, lblGap1, lblGap2, lblCDgap, lblsouthgap;
 	JButton buttonExit, buttonIn, buttonOut;
-	JPanel panelMain, panelWE, panelNIA, panelGPA, panelCC, panelDTT, panelWNG, panelCD, panelWC, panelDT; //PANELS: WE-Welcome/Exit, NIA-Name/ID/AGE, GPA-Gender/Phone/Age, CC-Clock/out, WNG-WE/NIA/GPA, CD-CC/Jlist, WC-WNG/CD, DT-Date/Time
-	JTable tableLogtime; 
+	JPanel panelMain, panelWE, panelNIA, panelGPA, panelCC, panelDTT, panelWNG, panelCD, panelWC, panelDT, panelLoweredBevelBorder; //PANELS: WE-Welcome/Exit, NIA-Name/ID/AGE, GPA-Gender/Phone/Age, CC-Clock/out, WNG-WE/NIA/GPA, CD-CC/Jlist, WC-WNG/CD, DT-Date/Time
+	
+	SimpleDateFormat dateFormat = new SimpleDateFormat("MMM. dd, yyyy"), sqldateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a"), sqltimeFormat = new SimpleDateFormat("HH:mm:ss");
+	java.sql.Date sqlDate;
 
-	SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
-	SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
-
-	String[][] data = { 
-            { "255","12/20/2018", "7:55AM", "5:01PM" }, 
-            { "255","12/21/2018", "7:52AM", "5:21PM" },
-			{ "255","12/22/2018", "7:33AM", "5:13PM" }, 
-			{ "255","12/23/2018", "7:51AM", "5:17PM" },
-			{ "255","12/24/2018", "7:42AM", "5:09PM" },
-			{ "255","12/25/2018", "7:58AM", "5:15PM" }
-			
-		}; 
-		
-	String[] columnNames = { "ID Number", "Date", "Time in", "Time out" }; 
+	DefaultTableModel tableModel = new DefaultTableModel();;
+	JTable tableLogtime = new JTable(tableModel);
+	String[] columnNames = {"ID Number", "Date In", "Time In", "Date Out", "Time Out"}, record = new String[5];
+	String stampDate, stampTime, datein, timein, idnum;
+	
+	Connection dbConn;
+	Statement sqlStmnt;
+	PreparedStatement ps;
+	String sqlQuery;
+	ResultSet sqlRS;
 
 	private boolean _clickMeMode = true;
 
-	Employee()
-	{
-		lblWelcome = new JLabel ("Hi, Juan dela Cruz!");
-		lblName = new JLabel ("Name: Juan dela Cruz");
-		lblID = new JLabel ("ID #: 255");
-		lblAge = new JLabel ("Age: 25");
-		lblGender = new JLabel ("Gender: Male");
-		lblPhone = new JLabel ("Phone #: 09123456789");
-		lblAddress = new JLabel ("Address: Cebu City");
+	Employee(String nmbr)
+	{	buttonExit = new JButton("Log out");
+		buttonExit.addActionListener(this);
+		buttonIn = new JButton("Clock in");
+		buttonIn.addActionListener(this);
+		buttonOut = new JButton("Clock out");
+		buttonOut.setEnabled(false);
+		buttonOut.addActionListener(this);
+		idnum = nmbr;
+						
+		try
+		{	dbConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/timetracker", "root", "");
+			sqlStmnt = dbConn.createStatement();
+			sqlQuery = "SELECT * FROM employees WHERE emp_id = '" + nmbr + "'";
+			sqlRS = sqlStmnt.executeQuery(sqlQuery);
+			sqlRS.first();
+		
+			lblWelcome = new JLabel ("         *  Hi, " + sqlRS.getString("emp_fname") + "!  *");
+			lblWelcome.setFont(new Font("Arial Bold", Font.ITALIC,14));
+			lblWelcome.setForeground(Color.BLUE);
+			lblName = new JLabel (" Name: " + sqlRS.getString("emp_fname") + " " + sqlRS.getString("emp_mname") + " " + sqlRS.getString("emp_lname"));
+			lblID = new JLabel (" ID#: " + sqlRS.getString("emp_id"));
+			lblAge = new JLabel (" Age: " + sqlRS.getString("emp_age"));
+			lblGender = new JLabel (" Gender: " + sqlRS.getString("emp_gender"));
+			lblAddress = new JLabel (" Address: " + sqlRS.getString("emp_address"));
+			
+			sqlQuery = "SELECT * FROM timelogs WHERE emp_id = '" + nmbr + "' ORDER BY date_in DESC, time_in DESC, date_out DESC, time_out DESC";
+			sqlRS = sqlStmnt.executeQuery(sqlQuery);
+			tableModel.setColumnIdentifiers(columnNames);
+			tableLogtime.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+			tableLogtime.getTableHeader().setReorderingAllowed(false);
+			while(sqlRS.next())
+			{	record[0] = sqlRS.getString("emp_id");
+				record[1] = dateFormat.format(sqlRS.getDate("date_in"));
+				record[2] = timeFormat.format(sqlRS.getTime("time_in"));
+				
+				if(sqlRS.getString("date_out").equals("0000-00-00"))
+				{	buttonIn.setEnabled(false);
+					buttonOut.setEnabled(true);
+					record[3] = "";
+					record[4] = "";
+					System.out.println("mo time out siya!");
+				}
+				else
+				{	record[3] = dateFormat.format(sqlRS.getDate("date_out"));
+					record[4] = timeFormat.format(sqlRS.getTime("time_out"));
+				}
+				
+				tableModel.addRow(record);				
+			}
+			if(sqlRS.first())
+			{	datein = sqlRS.getString("date_in");
+				timein = sqlRS.getString("time_in");
+			}
+		}
+		catch(Exception error) { error.printStackTrace(); return; }
+		
 		//lblDate = new JLabel(dateFormat.format(new Date()));
 		lblTime = new JLabel(timeFormat.format(new Date()));
 		lblTime.setFont(new Font("Arial",Font.BOLD,18));
 		lblGap1 = new JLabel ("      ");
 		lblGap2 = new JLabel ("      ");
 		lblCDgap  = new JLabel(" ");
-
-		tableLogtime = new JTable(data, columnNames); 
-
-		buttonExit = new JButton("Log out");
-		buttonExit.addActionListener(this);
-		buttonIn = new JButton("Clock in");
-		buttonIn.addActionListener(this);
-		//buttonIn.setEnabled(false);
-		buttonOut = new JButton("Clock out");
-		buttonOut.addActionListener(this);
+		lblsouthgap  = new JLabel(" ");
 
 		panelMain = new JPanel();
 		panelWE = new JPanel();
@@ -68,37 +110,34 @@ public class Employee extends JFrame implements ActionListener{
 		panelWNG = new JPanel();
 		panelCD = new JPanel();
 		panelWC = new JPanel();
+		panelLoweredBevelBorder = new JPanel();
 
-		panelMain.setLayout(new BorderLayout(1,1));
-		panelMain.setBackground(Color.lightGray);
-		panelWE.setLayout(new BorderLayout(1,1));
-		panelWE.setBackground(Color.lightGray);
-		panelNIA.setLayout(new BorderLayout(1,1));
-		panelNIA.setBackground(Color.lightGray);
-		panelGPA.setLayout(new BorderLayout(1,1));
-		panelGPA.setBackground(Color.lightGray);
-		panelDT.setLayout(new BorderLayout(30,1));
-		panelDT.setBackground(Color.lightGray);
-		panelCC.setLayout(new BorderLayout(120,1));
-		panelCC.setBackground(Color.lightGray);
-		panelWNG.setLayout(new BorderLayout(1,1));
-		panelWNG.setBackground(Color.lightGray);
-		panelCD.setLayout(new BorderLayout(1,1));
-		panelCD.setBackground(Color.lightGray);
-		panelWC.setLayout(new BorderLayout(1,1));
-		panelWC.setBackground(Color.lightGray);
-
+		panelMain.setLayout(new BorderLayout(1,1)); panelMain.setBackground(Color.lightGray);
+		panelWE.setLayout(new BorderLayout(1,1)); panelWE.setBackground(Color.lightGray);
+		panelNIA.setLayout(new BorderLayout(1,1)); panelNIA.setBackground(Color.lightGray);
+		panelGPA.setLayout(new BorderLayout(1,1)); panelGPA.setBackground(Color.lightGray);
+		panelDT.setLayout(new BorderLayout(30,1)); panelDT.setBackground(Color.lightGray);
+		panelCC.setLayout(new BorderLayout(120,1)); panelCC.setBackground(Color.lightGray);
+		panelWNG.setLayout(new BorderLayout(1,1)); panelWNG.setBackground(Color.lightGray);
+		panelCD.setLayout(new BorderLayout(1,1)); panelCD.setBackground(Color.lightGray);
+		panelWC.setLayout(new BorderLayout(1,1)); panelWC.setBackground(Color.lightGray);
+		panelLoweredBevelBorder.setLayout(new BorderLayout(1,1)); panelLoweredBevelBorder.setBackground(Color.lightGray);
+		
 		panelWE.add(BorderLayout.WEST, lblWelcome);
 		panelWE.add(BorderLayout.EAST, buttonExit);
-
+		//panelWE.add(BorderLayout.SOUTH, lblsouthgap);
+		
 		panelNIA.add(BorderLayout.NORTH, lblName);
 		panelNIA.add(BorderLayout.CENTER, lblID);
 		panelNIA.add(BorderLayout.SOUTH, lblAge);
 
 		panelGPA.add(BorderLayout.NORTH, lblGender);
-		panelGPA.add(BorderLayout.CENTER, lblPhone);
 		panelGPA.add(BorderLayout.SOUTH, lblAddress);
 
+		panelLoweredBevelBorder.add(BorderLayout.NORTH, panelNIA);
+		panelLoweredBevelBorder.add(BorderLayout.SOUTH, panelGPA);
+		panelLoweredBevelBorder.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLoweredBevelBorder(),"",2,0));
+		
 		panelDT.add(BorderLayout.WEST, lblGap1);
 		panelDT.add(BorderLayout.CENTER, lblTime);
 		panelDT.add(BorderLayout.EAST, lblGap2);
@@ -109,9 +148,9 @@ public class Employee extends JFrame implements ActionListener{
 		panelCC.add(BorderLayout.EAST, buttonOut);
 
 		panelWNG.add(BorderLayout.NORTH, panelWE);
-		panelWNG.add(BorderLayout.CENTER, panelNIA);
-		panelWNG.add(BorderLayout.SOUTH, panelGPA);
-		
+		//panelWNG.add(BorderLayout.CENTER, panelNIA);
+		panelWNG.add(BorderLayout.SOUTH, panelLoweredBevelBorder);
+				
 		panelCD.add(BorderLayout.NORTH, lblCDgap);
 		panelCD.add(BorderLayout.CENTER, panelCC);
 		panelCD.add(BorderLayout.SOUTH, new JScrollPane(tableLogtime));
@@ -149,28 +188,76 @@ public class Employee extends JFrame implements ActionListener{
 	}
 
 	public void actionPerformed(ActionEvent event)
-	{
-		try
-		{
-			Object source = event.getSource();
-			if (source == buttonExit)
-			{
-				Login login = new Login();
-				login.pack();
-				login.setLocationRelativeTo(null);
-				login.setResizable(false);
-				login.setVisible(true);
-				login.setTitle("JavaWookies Time Tracking System");
-				dispose();
-			}
+	{	Object source = event.getSource();
+		
+		if(source == buttonExit)
+		{	Login login = new Login();
+			login.pack();
+			login.setLocationRelativeTo(null);
+			login.setResizable(false);
+			login.setVisible(true);
+			login.setTitle("JavaWookies Time Tracking System");
+			dispose();
 		}
-		catch(Exception e) { e.printStackTrace(); }
+		else if(source == buttonOut)
+		{	stampDate = sqldateFormat.format(new Date(System.currentTimeMillis()));
+			stampTime = sqltimeFormat.format(new Date(System.currentTimeMillis()));
+			
+			sqlQuery = "UPDATE timelogs SET date_out = ?, time_out = ? WHERE date_in = ? AND time_in = ? AND emp_id = ?";
+			try
+			{	ps = dbConn.prepareStatement(sqlQuery);
+				ps.setDate(1, java.sql.Date.valueOf(stampDate));
+				ps.setTime(2, new Time(sqltimeFormat.parse(stampTime).getTime()));
+				//JOptionPane.showMessageDialog(null, datein + "<---------->" + timein);
+				ps.setDate(3, java.sql.Date.valueOf(datein));
+				ps.setTime(4, new Time(sqltimeFormat.parse(timein).getTime()));
+				ps.setString(5, idnum);
+				ps.executeUpdate();
+				
+				tableModel.setValueAt(dateFormat.format(java.sql.Date.valueOf(stampDate)), 0, 3);
+				tableModel.setValueAt(timeFormat.format(new Time(sqltimeFormat.parse(stampTime).getTime())), 0, 4);
+				
+				buttonIn.setEnabled(true);
+				buttonOut.setEnabled(false);
+			}
+			catch(Exception error){ error.printStackTrace(); return; }
+		}
+		else if(source == buttonIn)
+		{	stampDate = sqldateFormat.format(new Date(System.currentTimeMillis()));
+			stampTime = sqltimeFormat.format(new Date(System.currentTimeMillis()));
+			
+			//JOptionPane.showMessageDialog(null, "start of work! ---->" + idnum);
+			
+			sqlQuery = "INSERT INTO timelogs (emp_id, date_in, time_in, date_out, time_out) VALUES (?, ?, ?, '0000-00-00', '00:00:00.000000')";
+			try
+			{	ps = dbConn.prepareStatement(sqlQuery);
+				ps.setString(1, idnum);
+				ps.setDate(2, java.sql.Date.valueOf(stampDate));
+				ps.setTime(3, new Time(sqltimeFormat.parse(stampTime).getTime()));
+				ps.executeUpdate();
+				
+				record[0] = idnum;
+				record[1] = dateFormat.format(java.sql.Date.valueOf(stampDate));
+				record[2] = timeFormat.format(new Time(sqltimeFormat.parse(stampTime).getTime()));
+				record[3] = "";
+				record[4] = "";
+								
+				tableModel.insertRow(0, record);
+				
+				datein = stampDate;
+				timein = stampTime;
+				
+				buttonIn.setEnabled(false);
+				buttonOut.setEnabled(true);
+			}
+			catch(Exception error){ error.printStackTrace(); return; }
+		}
+		//sqlQuery="";
 	}
 	
 	public static void main(String[] args){
 		
-		Employee frame = new Employee();
-        frame.setTitle("JAVAWOOKIES Employee Logtime");
+		Employee frame = new Employee("1");
         WindowListener l = new WindowAdapter() 
 		{
             public void windowClosing(WindowEvent e) {
@@ -183,5 +270,6 @@ public class Employee extends JFrame implements ActionListener{
 		frame.setLocationRelativeTo(null); // set the frame to appear at the center of the screen
 		frame.setResizable(false);
         frame.setVisible(true);
+		frame.setTitle("JavaWookies Time Tracking System");
     }
 }
