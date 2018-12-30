@@ -1,3 +1,6 @@
+import com.mysql.cj.jdbc.exceptions.*;
+import java.sql.*;
+
 import java.awt.Image;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -24,9 +27,14 @@ public class Login extends JFrame implements ActionListener{
 	SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
 	SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a"); // not in military time. If you want to use military time use HH then take out a
 	
+	Connection dbConn; // This is the container for database connection driver, host name, db name, user name, password
+	Statement sqlStmnt; // This is where most MySQL statements (ex., INSERT INTO, SELECT) are stored
+	String sqlQuery, sqlUpdate; // sqlQuery is for searching desired records while sqlUpdate is for data manipulation (save, delete)
+	ResultSet sqlRS; // sqlRS is the Result Set that allows us to obtain data from db table based on the MySQL statement that the admin/user entered
+	
 	private boolean _clickMeMode = true;
-
-    Login()
+	
+	Login()
 	{
         lIDnumber = new JLabel("ID number: ");
 		lPasscode = new JLabel("Passcode:  ");
@@ -53,7 +61,24 @@ public class Login extends JFrame implements ActionListener{
 		//lDate.setText(dateFormat.format(new Date())); // -> long process of setting the text value of lDate
 		//lTime.setText(timeFormat.format(new Date())); // -> long process of setting the text value of lTime
 		        
-        tfIDnumber = new JTextField(8); // as agreed, should compose of 8 digits only
+        tfIDnumber = new JTextField(5) // as agreed, should compose of 5 digits only
+		{	public void processKeyEvent(KeyEvent ev)
+			{	char c = ev.getKeyChar();
+				try
+				{	if (c > 31 && c < 127)// Ignore all non-printable characters. Just check the printable ones.
+					{	Integer.parseInt(c + "");	}
+					super.processKeyEvent(ev);
+				}
+				catch (NumberFormatException nfe) {}
+			}
+		};
+		tfIDnumber.addKeyListener(new KeyAdapter()
+		{	@Override
+			public void keyTyped(KeyEvent e)
+			{	if (tfIDnumber.getText().length() >= 5 ) // limit to 5 characters
+					e.consume();
+			}
+		});
         tfIDnumber.addActionListener(this);
 		
 		tfPasscode = new JPasswordField(8);
@@ -166,45 +191,56 @@ public class Login extends JFrame implements ActionListener{
 
     public void actionPerformed(ActionEvent event)
 	{
+		Object source = event.getSource();
+		
 		if (_clickMeMode)
 		{
-            System.out.println("naClick ang button");
+			try
+			{
+				String strPassword = new String(tfPasscode.getPassword());
+				
+				System.out.println(strPassword);
+				dbConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/timetracker", "root", "");
+				sqlStmnt = dbConn.createStatement();
+				sqlQuery = "SELECT * FROM employees WHERE emp_id = '" + tfIDnumber.getText() + "' AND passcode = '" + strPassword + "'";
+				sqlRS = sqlStmnt.executeQuery(sqlQuery);
+				if(sqlRS.next())
+				{	sqlRS.close();
+					sqlStmnt.close();
+					dbConn.close();
+				}
+				else
+				{	JOptionPane.showMessageDialog(null, "NO RECORD FOUND!", "ALERT", JOptionPane.ERROR_MESSAGE); // error dialog box NOTE: need better error message
+					tfIDnumber.setText(""); tfIDnumber.requestFocus(); // set focus on tfIDnumber after error message prompted
+					tfPasscode.setText("");
+					return;
+				}
+			}
+			catch(Exception error) { error.printStackTrace(); return; }
+            
+			if(tfIDnumber.getText().equals("0"))
+			{
+				JOptionPane.showMessageDialog(null, "ADMIN page: Under Repair.");
+				tfIDnumber.setText(""); tfIDnumber.requestFocus();
+				tfPasscode.setText("");
+				return;
+			}
 			
-			JOptionPane.showMessageDialog(null, "naClick ang button", "ALERT", JOptionPane.ERROR_MESSAGE); // error dialog box
-			
-			Employee eui = new Employee();
+			Employee eui = new Employee(tfIDnumber.getText());
 			eui.pack();
 			eui.setLocationRelativeTo(null);
 			eui.setResizable(false);
 			eui.setVisible(true);
+			eui.setTitle("JavaWookies Time Tracking System");
 			
-			dispose();
-			
-			_clickMeMode = false;
-        }
-		else
-			_clickMeMode = true;
-			
-		/*
-		Object source = event.getSource();
-        String msg = textField.getText();
-        if (_clickMeMode) {
-            text.setText(msg);
-            button.setText("Click Again");
-            _clickMeMode = false;
-        } else {
-            text.setText("I'm a Simple Program");
-            button.setText("Click Me");
-            _clickMeMode = true;
-        }
-		*/
+			dispose();			
+		}
     }
 
     public static void main(String[] args){
         //Create top-level frame
         Login frame = new Login();
 		frame = new Login();
-        frame.setTitle("JavaWookies Time Tracking System");
 
         //This code lets you close the window
         WindowListener l = new WindowAdapter() {
@@ -221,5 +257,6 @@ public class Login extends JFrame implements ActionListener{
 		frame.setLocationRelativeTo(null); // set the frame to appear at the center of the screen
 		frame.setResizable(false);
         frame.setVisible(true);
+		frame.setTitle("JavaWookies Time Tracking System");
     }
 }
