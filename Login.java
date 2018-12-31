@@ -199,7 +199,6 @@ public class Login extends JFrame implements ActionListener{
 			{
 				String strPassword = new String(tfPasscode.getPassword());
 				
-				System.out.println(strPassword);
 				dbConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/timetracker", "root", "");
 				sqlStmnt = dbConn.createStatement();
 				sqlQuery = "SELECT * FROM employees WHERE emp_id = '" + tfIDnumber.getText() + "' AND passcode = '" + strPassword + "'";
