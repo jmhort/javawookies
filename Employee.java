@@ -12,12 +12,11 @@ import javax.swing.*;
 import javax.swing.JTable; 
 import java.io.*;
 
-public class Employee extends JFrame implements ActionListener
+public class Employee extends JFrame implements ActionListener, MouseListener
 {
-
-	JLabel lblWelcome, lblName, lblID, lblAge, lblGender, lblAddress, lblDate, lblTime, lblGap1, lblGap2, lblCDgap, lblsouthgap;
-	JButton buttonExit, buttonIn, buttonOut;
-	JPanel panelMain, panelWE, panelNIA, panelGPA, panelCC, panelDTT, panelWNG, panelCD, panelWC, panelDT, panelLoweredBevelBorder; //PANELS: WE-Welcome/Exit, NIA-Name/ID/AGE, GPA-Gender/Phone/Age, CC-Clock/out, WNG-WE/NIA/GPA, CD-CC/Jlist, WC-WNG/CD, DT-Date/Time
+	JLabel lblWelcome, lblName, lblID, lblAge, lblGender, lblAddress, lblDate, lblTime, lblGap1, lblGap2, lblCDgap;
+	JButton buttonExit, buttonIn, buttonOut, buttonDelete;
+	JPanel panelMain, panelWE, panelNIA, panelGPA, panelCC, panelDTT, panelWNG, panelCD, panelWC, panelDT, panelLoweredBevelBorder, panelDelete; //PANELS: WE-Welcome/Exit, NIA-Name/ID/AGE, GPA-Gender/Phone/Age, CC-Clock/out, WNG-WE/NIA/GPA, CD-CC/Jlist, WC-WNG/CD, DT-Date/Time
 	
 	SimpleDateFormat dateFormat = new SimpleDateFormat("MMM. dd, yyyy"), sqldateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a"), sqltimeFormat = new SimpleDateFormat("HH:mm:ss");
@@ -41,9 +40,14 @@ public class Employee extends JFrame implements ActionListener
 		buttonExit.addActionListener(this);
 		buttonIn = new JButton("Clock in");
 		buttonIn.addActionListener(this);
+		buttonIn.addMouseListener(this);
 		buttonOut = new JButton("Clock out");
 		buttonOut.setEnabled(false);
 		buttonOut.addActionListener(this);
+		buttonOut.addMouseListener(this);
+		buttonDelete = new JButton("Delete");
+		buttonDelete.addActionListener(this);
+		buttonDelete.setEnabled(false);
 		idnum = nmbr;
 						
 		try
@@ -62,11 +66,14 @@ public class Employee extends JFrame implements ActionListener
 			lblGender = new JLabel (" Gender: " + sqlRS.getString("emp_gender"));
 			lblAddress = new JLabel (" Address: " + sqlRS.getString("emp_address"));
 			
-			sqlQuery = "SELECT * FROM timelogs WHERE emp_id = '" + nmbr + "' ORDER BY date_in DESC, time_in DESC, date_out DESC, time_out DESC";
+			sqlQuery = "SELECT * FROM timelogs WHERE emp_id = '" + nmbr + "' ORDER BY date_in DESC, time_in DESC";
 			sqlRS = sqlStmnt.executeQuery(sqlQuery);
 			tableModel.setColumnIdentifiers(columnNames);
 			tableLogtime.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 			tableLogtime.getTableHeader().setReorderingAllowed(false);
+			tableLogtime.setDefaultEditor(Object.class, null); // making the table uneditable
+			tableLogtime.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			
 			while(sqlRS.next())
 			{	record[0] = sqlRS.getString("emp_id");
 				record[1] = dateFormat.format(sqlRS.getDate("date_in"));
@@ -89,17 +96,16 @@ public class Employee extends JFrame implements ActionListener
 			if(sqlRS.first())
 			{	datein = sqlRS.getString("date_in");
 				timein = sqlRS.getString("time_in");
+				buttonDelete.setEnabled(true);
 			}
 		}
 		catch(Exception error) { error.printStackTrace(); return; }
 		
-		//lblDate = new JLabel(dateFormat.format(new Date()));
 		lblTime = new JLabel(timeFormat.format(new Date()));
 		lblTime.setFont(new Font("Arial",Font.BOLD,18));
 		lblGap1 = new JLabel ("      ");
 		lblGap2 = new JLabel ("      ");
 		lblCDgap  = new JLabel(" ");
-		lblsouthgap  = new JLabel(" ");
 
 		panelMain = new JPanel();
 		panelWE = new JPanel();
@@ -111,6 +117,7 @@ public class Employee extends JFrame implements ActionListener
 		panelCD = new JPanel();
 		panelWC = new JPanel();
 		panelLoweredBevelBorder = new JPanel();
+		panelDelete = new JPanel();
 
 		panelMain.setLayout(new BorderLayout(1,1)); panelMain.setBackground(Color.lightGray);
 		panelWE.setLayout(new BorderLayout(1,1)); panelWE.setBackground(Color.lightGray);
@@ -122,10 +129,10 @@ public class Employee extends JFrame implements ActionListener
 		panelCD.setLayout(new BorderLayout(1,1)); panelCD.setBackground(Color.lightGray);
 		panelWC.setLayout(new BorderLayout(1,1)); panelWC.setBackground(Color.lightGray);
 		panelLoweredBevelBorder.setLayout(new BorderLayout(1,1)); panelLoweredBevelBorder.setBackground(Color.lightGray);
+		panelDelete.setLayout(new BorderLayout(1,1)); panelDelete.setBackground(Color.lightGray);
 		
 		panelWE.add(BorderLayout.WEST, lblWelcome);
 		panelWE.add(BorderLayout.EAST, buttonExit);
-		//panelWE.add(BorderLayout.SOUTH, lblsouthgap);
 		
 		panelNIA.add(BorderLayout.NORTH, lblName);
 		panelNIA.add(BorderLayout.CENTER, lblID);
@@ -146,19 +153,22 @@ public class Employee extends JFrame implements ActionListener
 		panelCC.add(BorderLayout.WEST, buttonIn);
 		panelCC.add(BorderLayout.CENTER, panelDT);
 		panelCC.add(BorderLayout.EAST, buttonOut);
-
+		
 		panelWNG.add(BorderLayout.NORTH, panelWE);
-		//panelWNG.add(BorderLayout.CENTER, panelNIA);
 		panelWNG.add(BorderLayout.SOUTH, panelLoweredBevelBorder);
 				
 		panelCD.add(BorderLayout.NORTH, lblCDgap);
 		panelCD.add(BorderLayout.CENTER, panelCC);
 		panelCD.add(BorderLayout.SOUTH, new JScrollPane(tableLogtime));
+		
+		panelDelete.add(BorderLayout.EAST, buttonDelete);
 
 		panelWC.add(BorderLayout.NORTH, panelWNG);
 		panelWC.add(BorderLayout.CENTER, panelCD);
+		panelWC.add(BorderLayout.SOUTH, panelDelete);
 
 		panelMain.add(BorderLayout.WEST, panelWC);
+		panelMain.addMouseListener(this);
 
 		getContentPane().add(panelMain);
 
@@ -175,17 +185,26 @@ public class Employee extends JFrame implements ActionListener
 		timer.setRepeats(true);
 		timer.start();
 		
-	this.addWindowListener
-		(
-			new WindowAdapter() 
-			{
-				public void windowClosing(WindowEvent e)
-				{
-						System.exit(0);
-				}
+		this.addWindowListener
+		(	new WindowAdapter() 
+			{	public void windowClosing(WindowEvent e)
+				{	System.exit(0);		}
 			}
 		);
 	}
+	
+	public void mouseClicked(MouseEvent e)
+	{	tableLogtime.clearSelection();
+		panelMain.requestFocusInWindow();
+	}
+	
+	public void mouseExited(MouseEvent e) {}
+	
+	public void mouseEntered(MouseEvent e) {}
+	
+	public void mouseReleased(MouseEvent e) {}
+	
+	public void mousePressed(MouseEvent e) {}
 
 	public void actionPerformed(ActionEvent event)
 	{	Object source = event.getSource();
@@ -208,7 +227,6 @@ public class Employee extends JFrame implements ActionListener
 			{	ps = dbConn.prepareStatement(sqlQuery);
 				ps.setDate(1, java.sql.Date.valueOf(stampDate));
 				ps.setTime(2, new Time(sqltimeFormat.parse(stampTime).getTime()));
-				//JOptionPane.showMessageDialog(null, datein + "<---------->" + timein);
 				ps.setDate(3, java.sql.Date.valueOf(datein));
 				ps.setTime(4, new Time(sqltimeFormat.parse(timein).getTime()));
 				ps.setString(5, idnum);
@@ -219,14 +237,14 @@ public class Employee extends JFrame implements ActionListener
 				
 				buttonIn.setEnabled(true);
 				buttonOut.setEnabled(false);
+				
+				JOptionPane.showMessageDialog(null, "Time Out successful!");
 			}
 			catch(Exception error){ error.printStackTrace(); return; }
 		}
 		else if(source == buttonIn)
 		{	stampDate = sqldateFormat.format(new Date(System.currentTimeMillis()));
 			stampTime = sqltimeFormat.format(new Date(System.currentTimeMillis()));
-			
-			//JOptionPane.showMessageDialog(null, "start of work! ---->" + idnum);
 			
 			sqlQuery = "INSERT INTO timelogs (emp_id, date_in, time_in, date_out, time_out) VALUES (?, ?, ?, '0000-00-00', '00:00:00.000000')";
 			try
@@ -249,27 +267,69 @@ public class Employee extends JFrame implements ActionListener
 				
 				buttonIn.setEnabled(false);
 				buttonOut.setEnabled(true);
+				buttonDelete.setEnabled(true);
+				
+				JOptionPane.showMessageDialog(null, "Time In successful!");
 			}
 			catch(Exception error){ error.printStackTrace(); return; }
 		}
-		//sqlQuery="";
+		else if(source == buttonDelete)
+		{	if(tableLogtime.getSelectedRow()!=-1)
+				tableLogtime.requestFocus();
+			
+			if((tableLogtime.getSelectedColumn()>=3) && (tableLogtime.getSelectedRow()==0))
+			{	if(tableLogtime.getValueAt(0, 3) == "")
+					deleteShift();
+				else
+				{	if(JOptionPane.showConfirmDialog(null, "Are you sure you want to delete your TIME OUT data?", "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+					{	tableModel.setValueAt("", 0, 3);
+						tableModel.setValueAt("", 0, 4);
+						tableLogtime.clearSelection();
+						panelMain.requestFocusInWindow();
+						buttonIn.setEnabled(false);
+						buttonOut.setEnabled(true);
+						
+						sqlQuery = "UPDATE timelogs SET date_out = '0000-00-00', time_out = '00:00:00.000000' WHERE date_in = ? AND time_in = ? AND emp_id = ?";
+						try
+						{	ps = dbConn.prepareStatement(sqlQuery);
+							ps.setDate(1, java.sql.Date.valueOf(sqldateFormat.format(dateFormat.parse(tableLogtime.getValueAt(0, 1).toString()))));
+							ps.setTime(2, new Time(sqltimeFormat.parse(sqltimeFormat.format(timeFormat.parse(tableLogtime.getValueAt(0, 2).toString()))).getTime()));
+							ps.setString(3, idnum);
+							ps.executeUpdate();
+							
+							JOptionPane.showMessageDialog(null, "Time Out data successfully deleted!");
+						}
+						catch(Exception error){ error.printStackTrace(); return; }
+					}
+				}
+			}
+			else if((tableLogtime.getSelectedColumn()<=2) || (tableLogtime.getSelectedRow()>=1))
+				deleteShift();
+		}
 	}
 	
-	public static void main(String[] args){
-		
-		Employee frame = new Employee("1");
-        WindowListener l = new WindowAdapter() 
-		{
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        };
-
-        frame.addWindowListener(l);
-		frame.pack();
-		frame.setLocationRelativeTo(null); // set the frame to appear at the center of the screen
-		frame.setResizable(false);
-        frame.setVisible(true);
-		frame.setTitle("JavaWookies Time Tracking System");
-    }
+	public void deleteShift()
+	{	if(tableLogtime.getSelectedRow()!=-1)
+		{	if(JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this shift?", "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+			{	sqlQuery = "DELETE FROM timelogs WHERE emp_id = ? AND date_in = ? AND time_in = ?";
+				try
+				{	ps = dbConn.prepareStatement(sqlQuery);
+					ps.setString(1, idnum);
+					ps.setDate(2, java.sql.Date.valueOf(sqldateFormat.format(dateFormat.parse(tableLogtime.getValueAt(tableLogtime.getSelectedRow(), 1).toString()))));
+					ps.setTime(3, new Time(sqltimeFormat.parse(sqltimeFormat.format(timeFormat.parse(tableLogtime.getValueAt(tableLogtime.getSelectedRow(), 2).toString()))).getTime()));
+					ps.executeUpdate();
+				}
+				catch(Exception error){ error.printStackTrace(); return; }
+			
+				tableModel.removeRow(tableLogtime.getSelectedRow());
+				panelMain.requestFocusInWindow();
+				buttonIn.setEnabled(true);
+				buttonOut.setEnabled(false);
+				if(tableLogtime.getRowCount()==0)
+					buttonDelete.setEnabled(false);
+				
+				JOptionPane.showMessageDialog(null, "Selected shift successfully deleted!");
+			}
+		}
+	}
 }
