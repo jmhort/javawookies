@@ -237,24 +237,18 @@ public class Login extends JFrame implements ActionListener{
 		}
     }
 
-    public static void main(String[] args){
-        //Create top-level frame
-        Login frame = new Login();
+    public static void main(String[] args)
+	{	Login frame = new Login();
 		frame = new Login();
 
-        //This code lets you close the window
-        WindowListener l = new WindowAdapter() {
-        //The instantiation of object l is extended to
-        //include this code:
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
+        WindowListener l = new WindowAdapter()
+		{	public void windowClosing(WindowEvent e)
+			{	System.exit(0);		}
         };
 
         frame.addWindowListener(l);
-        //This code lets you see the frame
         frame.pack();
-		frame.setLocationRelativeTo(null); // set the frame to appear at the center of the screen
+		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
         frame.setVisible(true);
 		frame.setTitle("JavaWookies Time Tracking System");
