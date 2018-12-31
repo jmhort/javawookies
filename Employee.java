@@ -84,7 +84,6 @@ public class Employee extends JFrame implements ActionListener, MouseListener
 					buttonOut.setEnabled(true);
 					record[3] = "";
 					record[4] = "";
-					System.out.println("mo time out siya!");
 				}
 				else
 				{	record[3] = dateFormat.format(sqlRS.getDate("date_out"));
