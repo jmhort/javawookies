@@ -48,7 +48,7 @@ public class Employee extends JFrame implements ActionListener, MouseListener
 		idnum = nmbr;
 						
 		try
-		{	dbConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/timetracker", "root", "");
+		{	dbConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/timetracker", "admin", "adminuser");
 			sqlStmnt = dbConn.createStatement();
 			sqlQuery = "SELECT * FROM employees WHERE emp_id = '" + nmbr + "'";
 			sqlRS = sqlStmnt.executeQuery(sqlQuery);
