@@ -51,7 +51,7 @@ public class Admin extends JFrame implements ActionListener
 	JPasswordField pfPasscode = new JPasswordField(15), pfVerifyPasscode = new JPasswordField(15);
 	JButton btnClearAll;
 	String genderList[]={"-Select-","Male","Female"}, noFname; 
-	JComboBox<String> cbGender=new JComboBox<>(genderList);
+	JComboBox<String> cbGender = new JComboBox<>(genderList);
 		
 	Admin()
 	{	
@@ -69,7 +69,7 @@ public class Admin extends JFrame implements ActionListener
 		tfAge.addKeyListener(new KeyAdapter()
 		{	@Override
 			public void keyTyped(KeyEvent e)
-			{	if (tfAge.getText().length() >= 3 ) // limit to 3 characters
+			{	if (tfAge.getText().length() >= 3) // limit to 3 characters
 					e.consume();
 			}
 		});
@@ -415,9 +415,7 @@ public class Admin extends JFrame implements ActionListener
         panelMain.add(BorderLayout.CENTER, panelMID); 
         panelMain.add(BorderLayout.SOUTH, panelEmpTableButtons);
 			
-		
-        getContentPane().add(panelMain);
-		
+		getContentPane().add(panelMain);
 		
 		this.addWindowListener
 		(	new WindowAdapter() 
@@ -450,8 +448,34 @@ public class Admin extends JFrame implements ActionListener
 		}
 		else if(source == btnClearAll)
 			eraseAll();
-		
-    }
+		else if(source == btnDeleteEmployee)
+		{
+			if(table.getSelectedRow()!=-1)
+			{
+				if(JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this employee?", "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+				{	
+					/*
+					sqlQuery = "DELETE FROM timelogs WHERE emp_id = ? AND date_in = ? AND time_in = ?";
+					try
+					{	ps = dbConn.prepareStatement(sqlQuery);
+						ps.setString(1, idnum);
+						ps.setDate(2, java.sql.Date.valueOf(sqldateFormat.format(dateFormat.parse(tableLogtime.getValueAt(tableLogtime.getSelectedRow(), 1).toString()))));
+						ps.setTime(3, new Time(sqltimeFormat.parse(sqltimeFormat.format(timeFormat.parse(tableLogtime.getValueAt(tableLogtime.getSelectedRow(), 2).toString()))).getTime()));
+						ps.executeUpdate();
+					}
+					catch(Exception error){ error.printStackTrace(); return; }
+					*/
+			
+					tableModel.removeRow(table.getSelectedRow());
+					panelMain.requestFocusInWindow();
+					if(table.getRowCount()==0)
+						disableButtons();
+				
+					JOptionPane.showMessageDialog(null, "Employee successfully deleted!");
+				}
+			}
+		}
+	}
 	
 	public void eraseAll()
 	{
@@ -478,6 +502,13 @@ public class Admin extends JFrame implements ActionListener
 		lblEmpIDtext = new JLabel("100");lblEmpIDtext.setForeground(new Color(142, 47, 53));
 		
 		panelAddEmployee = new JPanel(); panelAddEmployee.setLayout(new BorderLayout(1,1)); panelAddEmployee.setBackground(Color.lightGray);
+		panelAddEmployee.addMouseListener( new MouseAdapter()
+		{	public void mouseClicked(MouseEvent e)
+			{	if(tfAge.getText().length()!=0)
+					tfAge.setText(String.valueOf(Integer.parseInt(tfAge.getText())));
+			}
+		});
+		
 		panelEmpPass = new JPanel(); panelEmpPass.setLayout(new BorderLayout(1,1)); panelEmpPass.setBackground(Color.lightGray);
 		panelEmpID = new JPanel(); panelEmpID.setLayout(new BorderLayout(1,1)); panelEmpID.setBackground(Color.lightGray);
 		panelPasscode = new JPanel(); panelPasscode.setLayout(new BorderLayout(1,1)); panelPasscode.setBackground(Color.lightGray);
@@ -580,20 +611,88 @@ public class Admin extends JFrame implements ActionListener
 		
 		if(JOptionPane.showOptionDialog(null, panelAddEmployee, "Enter Employee Details", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, selectOptions, selectOptions[0]) == 0)
 		{	if(JOptionPane.showConfirmDialog(null, "Are all entries correct?", "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-			{	if ((Arrays.equals(pfPasscode.getPassword(), pfVerifyPasscode.getPassword())) && ((pfPasscode.getPassword().length != 0) && (pfPasscode.getPassword().length != 0)))
-				{
-					JOptionPane.showMessageDialog(null, "passcodes are the same!");
-					//add row to the table UI
-					//start sql insert into table here
+			{	if ((Arrays.equals(pfPasscode.getPassword(), pfVerifyPasscode.getPassword())) && (pfPasscode.getPassword().length != 0))
+				{	if(tfMname.getText().length()!=0)
+					{	if(tfFname.getText().length()!=0)
+						{	if(tfLname.getText().length()!=0)
+								record[0] = tfLname.getText() + ", " + tfFname.getText() + " " + tfMname.getText().substring(0, 1) + ".";
+							else
+								record[0] = tfFname.getText() + " " + tfMname.getText().substring(0, 1) + ".";
+						}
+						else
+						{	if(tfLname.getText().length()!=0)
+								record[0] = tfLname.getText() + ", " + tfMname.getText().substring(0, 1) + ".";
+							else
+								record[0] = tfMname.getText().substring(0, 1) + ".";
+						}
+					}
+					else
+					{	if(tfFname.getText().length()!=0)
+						{	if(tfLname.getText().length()!=0)
+								record[0] = tfLname.getText() + ", " + tfFname.getText();
+							else
+								record[0] = tfFname.getText();
+						}
+						else
+						{	if(tfLname.getText().length()!=0)
+								record[0] = tfLname.getText();
+							else
+								record[0] = "";
+						}
+					}
+					
+					record[1] = lblEmpIDtext.getText();
+					record[2] = "";
+					if(tfAge.getText().length()!=0)
+					{	record[2] = String.valueOf(Integer.parseInt(tfAge.getText()));
+						if(Integer.parseInt(tfAge.getText()) == 0)
+							record[2] = "";
+					}
+					record[3] = (String) cbGender.getSelectedItem();
+					if((String) cbGender.getSelectedItem() == "-Select-")
+						record[3] = "";
+					record[4] = tfAddress.getText();
+				
+					tableModel.insertRow(0, record);
+					
+					btnTimeLogs.setEnabled(true);
+					btnEdit.setEnabled(true);
+					btnDeleteEmployee.setEnabled(true);
+					btnDeleteAll.setEnabled(true);
+					lblSearch.setEnabled(true);
+										
+					/*--- ADD to database ---*/
+					/*
+					sqlQuery = "INSERT INTO timelogs (emp_id, date_in, time_in, date_out, time_out) VALUES (?, ?, ?, '0000-00-00', '00:00:00.000000')";
+					try
+					{	ps = dbConn.prepareStatement(sqlQuery);
+						ps.setString(1, idnum);
+						ps.setDate(2, java.sql.Date.valueOf(stampDate));
+						ps.setTime(3, new Time(sqltimeFormat.parse(stampTime).getTime()));
+						ps.executeUpdate();
+				
+						JOptionPane.showMessageDialog(null, "New Employee successfully added!");
+					}
+					catch(Exception error){ error.printStackTrace(); return; }
+					*/
+					/*--- ADD to database ---*/
 				} 
 				else
-				{
-					lblVerify.setText("Passcode not verified  "); lblVerify.setForeground(Color.RED);
+				{	lblVerify.setText("Passcode not verified  "); lblVerify.setForeground(Color.RED);
+					if(tfAge.getText().length()!=0)
+						tfAge.setText(String.valueOf(Integer.parseInt(tfAge.getText())));
 					Addemp();
 				}
 			}
 			else
+			{	lblVerify.setText("");
+				if(tfAge.getText().length()!=0)
+				{	tfAge.setText(String.valueOf(Integer.parseInt(tfAge.getText())));
+					if(Integer.parseInt(tfAge.getText()) == 0)
+						tfAge.setText("");
+				}
 				Addemp();
+			}
 		}
 		eraseAll();
 	}
